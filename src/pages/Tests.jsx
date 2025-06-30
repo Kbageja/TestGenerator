@@ -4,12 +4,10 @@ import {
   Users,
   BookOpen,
   Trophy,
-  Calendar,
   Star,
   Search,
   Globe,
   Lock,
-  Globe2,
 } from "lucide-react";
 import { useAuth } from "@clerk/clerk-react";
 import {
@@ -17,14 +15,13 @@ import {
   usePublicTest,
   useAttempted,
 } from "../hooks/query/testQueries";
+import { useNavigate } from "react-router-dom";
 
 function Tests() {
-  const { userId } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const { getToken } = useAuth();
-
+  const { userId, getToken } = useAuth();
   const [token, setToken] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -35,11 +32,8 @@ function Tests() {
   }, [getToken]);
 
   const { data: myTests = [] } = useMyTest(userId, token);
-  console.log(myTests, "myTest");
   const { data: publicTests = [] } = usePublicTest(userId, token);
-  console.log(publicTests, "publicTest");
   const { data: attemptedTests = [] } = useAttempted(userId, token);
-  console.log(attemptedTests, "attempted");
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -54,7 +48,7 @@ function Tests() {
     }
   };
 
-  const formatTime = (seconds) => `${Math.round(seconds / 60, 2)}m`;
+  const formatTime = (seconds) => `${Math.round(seconds / 60)}m`;
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-US", {
       month: "short",
@@ -66,12 +60,20 @@ function Tests() {
     return "text-red-400";
   };
 
-  const filteredPublicTests = publicTests.filter(
-    (test) =>
-      test.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      test.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      test.creator?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // 🔥 Exclude attempted public tests
+  const filteredPublicTests = publicTests
+    .filter((test) => {
+      const isAttempted = attemptedTests.some(
+        (attempt) => attempt.testId === test.id
+      );
+      return !isAttempted;
+    })
+    .filter(
+      (test) =>
+        test.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        test.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        test.creator?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   return (
     <div className="min-h-screen bg-neutral-800 text-white p-6">
@@ -91,58 +93,76 @@ function Tests() {
             </span>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
-            {myTests.map((test) => (
-              <div
-                key={test.id}
-                className="min-w-80 w-80 flex-shrink-0 bg-neutral-900 rounded-lg p-6 border border-neutral-700 hover:border-amber-400/50"
-              >
-                <div className="flex justify-between mb-4">
-                  <div className="flex-1 mr-2 overflow-hidden">
-                    <h3 className="text-lg font-semibold whitespace-nowrap overflow-hidden text-ellipsis hover:whitespace-normal hover:overflow-visible hover:text-ellipsis-none transition-all duration-300 ease-in-out hover:animate-pulse">
-                      {test.title}
-                    </h3>
+            {myTests.map((test) => {
+              const matchingAttempt = attemptedTests.find(
+                (attempt) =>
+                  attempt.testId === test.id &&
+                  attempt.user?.clerkId === userId
+              );
+              return (
+                <div
+                  key={test.id}
+                  className="min-w-80 w-80 bg-neutral-900 rounded-lg p-6 border border-neutral-700 hover:border-amber-400/50"
+                >
+                  <div className="flex justify-between mb-4">
+                    <div className="flex-1 mr-2 overflow-hidden">
+                      <h3 className="text-lg font-semibold whitespace-nowrap overflow-hidden text-ellipsis hover:whitespace-normal hover:overflow-visible hover:text-ellipsis-none transition-all duration-300 ease-in-out hover:animate-pulse">
+                        {test.title}
+                      </h3>
+                    </div>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(
+                        test.difficulty
+                      )}`}
+                    >
+                      {test.difficulty}
+                    </span>
                   </div>
-                  <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(
-                      test.difficulty
-                    )} flex-shrink-0`}
-                  >
-                    {test.difficulty}
-                  </span>
+                  <div className="text-sm text-neutral-300 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={16} /> {test.subject}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} /> {test.mcqCount} MCQ,{" "}
+                      {test.shortAnswerCount} SA
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users size={16} /> {test.attemptsCount ?? 0} attempts
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {test.isPublic ? (
+                        <>
+                          <Globe size={16} />
+                          <span>Public</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock size={16} />
+                          <span>Private</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-4 text-xs text-neutral-500">
+                    <span>Created {formatDate(test.createdAt)}</span>
+                    <button
+                      disabled={!matchingAttempt}
+                      onClick={() =>
+                        matchingAttempt &&
+                        navigate(`/Test/Result/${matchingAttempt.id}`)
+                      }
+                      className={`px-4 py-1 rounded-md text-sm ${
+                        matchingAttempt
+                          ? "bg-amber-600 hover:bg-amber-700 text-white"
+                          : "bg-neutral-700 text-neutral-400 cursor-not-allowed"
+                      }`}
+                    >
+                      {matchingAttempt ? "View" : "Not Attempted"}
+                    </button>
+                  </div>
                 </div>
-                <div className="text-sm text-neutral-300 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <BookOpen size={16} /> {test.subject}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} /> {test.mcqCount} MCQ,{" "}
-                    {test.shortAnswerCount} SA
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users size={16} /> {test.attempts ?? 0} attempts
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {test.isPublic ? (
-                      <>
-                        <Globe size={16} />
-                        <span>Public</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock size={16} />
-                        <span>Private</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-4 text-xs text-neutral-500">
-                  <span>Created {formatDate(test.createdAt)}</span>
-                  <button className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1 rounded-md text-sm">
-                    View
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <p className="text-sm text-amber-400 italic">Scroll to view</p>
         </section>
@@ -160,7 +180,7 @@ function Tests() {
             {attemptedTests.map((attempt) => (
               <div
                 key={attempt.id}
-                className="w-80 bg-neutral-900 rounded-lg p-6 border border-neutral-700 hover:border-amber-400/50"
+                className=" min-w-80 w-80 bg-neutral-900 rounded-lg p-6 border border-neutral-700 hover:border-amber-400/50"
               >
                 <div className="flex justify-between mb-4">
                   <div className="flex-1 mr-2 overflow-hidden">
@@ -187,8 +207,7 @@ function Tests() {
                         )}`}
                       >
                         {Math.round(
-                          (attempt.score * 100) / attempt.totalMarks,
-                          3
+                          (attempt.score * 100) / attempt.totalMarks
                         )}
                         %
                       </span>
@@ -204,7 +223,14 @@ function Tests() {
                 </div>
                 <div className="flex justify-between items-center mt-4 text-xs text-neutral-500">
                   <span>{formatDate(attempt.createdAt)}</span>
-                  <button className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1 rounded-md text-sm">
+                  <button
+                    onClick={() =>
+                      attempt.isCompleted
+                        ? navigate(`/Test/Result/${attempt.id}`)
+                        : navigate(`/Test/${attempt.testId}`)
+                    }
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1 rounded-md text-sm"
+                  >
                     {attempt.isCompleted ? "Review" : "Continue"}
                   </button>
                 </div>
@@ -253,7 +279,7 @@ function Tests() {
                   <span
                     className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(
                       test.difficulty
-                    )} flex-shrink-0`}
+                    )}`}
                   >
                     {test.difficulty}
                   </span>
@@ -270,15 +296,17 @@ function Tests() {
                     {test.shortAnswerCount} SA
                   </div>
                   <div className="flex items-center gap-2">
-                    <Users size={16} />{" "}
-                    {test.totalAttempts?.toLocaleString() ?? 0} attempts
+                    <Users size={16} /> {test.attemptsCount ?? 0} attempts
                   </div>
                 </div>
                 <div className="flex justify-between mt-4 text-xs text-neutral-500">
-                  <span>By {test.creator ?? "Unknown"}</span>
+                  <span>By {test.creatorName ?? "Unknown"}</span>
                   <span>{formatDate(test.createdAt)}</span>
                 </div>
-                <button className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md text-sm">
+                <button
+                  onClick={() => navigate(`/Test/${test.id}`)}
+                  className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md text-sm"
+                >
                   Start Test
                 </button>
               </div>

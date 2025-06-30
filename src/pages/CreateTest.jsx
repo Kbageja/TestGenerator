@@ -120,7 +120,7 @@ const handleSubmit = async (e) => {
   ];
 
   const educationLevels = [
-    'ELEMENTARY', 'MIDDLE_SCHOOL', 'HIGH_SCHOOL', 'COLLEGE', 'UNIVERSITY', 'GRADUATE'
+    'ELEMENTARY', 'MIDDLE_SCHOOL', 'HIGH_SCHOOL', 'COLLEGE', 'GRADUATE'
   ];
 
   const difficulties = [

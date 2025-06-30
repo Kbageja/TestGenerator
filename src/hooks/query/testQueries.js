@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchAttempted, fetchMyTest, fetchPublicTests, fetchResultById, fetchTestById } from '../testApi';
+import { fetchAttempted, fetchMyTest, fetchPublicTests, fetchResultById, fetchStats, fetchTestById } from '../testApi';
 
 export const useGetTestById = (id, token) => {
   return useQuery({
@@ -24,6 +24,14 @@ export const useMyTest = (id, token) => {
     enabled: !!id && !!token, // only run when both are available
   });
 };
+export const useStats = (token) => {
+  return useQuery({
+    queryKey: ['Stats'],
+    queryFn: () => fetchStats(token),
+    enabled: !!token,
+  });
+};
+
 
 export const usePublicTest = (id, token) => {
   return useQuery({
@@ -34,7 +42,6 @@ export const usePublicTest = (id, token) => {
 };
 
 export const useAttempted = (id, token) => {
-  console.log("inside hook")
   return useQuery({
     queryKey: ['attemptedTest', id],
     queryFn: () => fetchAttempted(id, token),

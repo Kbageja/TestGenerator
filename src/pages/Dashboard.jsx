@@ -2,10 +2,26 @@ import { useAuth, useUser } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { useStats } from '../hooks/query/testQueries';
 
 export default function Dashboard() {
+   const { userId } = useAuth();
     const navigate = useNavigate();
   const { user } = useUser();
+  const { getToken } = useAuth();
+  
+    const [token, setToken] = useState(null);
+  
+    useEffect(() => {
+      const fetchToken = async () => {
+        const t = await getToken();
+        setToken(t);
+      };
+      fetchToken();
+    }, [getToken]);
+  
+   const { data: statsTest = {} } = useStats(token);
+    console.log(statsTest, "myTest");
 
   const [stats, setStats] = useState({
     totalTests: 12,
@@ -45,7 +61,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-neutral-400 text-sm font-medium">Total Tests</p>
-                <p className="text-3xl font-bold text-white mt-1">{stats.totalTests}</p>
+                <p className="text-3xl font-bold text-white mt-1">{statsTest.totalTests ?? 'No data'}</p>
               </div>
               <div className="bg-blue-500/20 p-3 rounded-lg">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +70,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="mt-4">
-              <span className="text-green-400 text-sm font-medium">+2 this week</span>
+              <span className="text-green-400 text-sm font-medium">+{statsTest.testsThisWeek ?? 'No data'} this week</span>
             </div>
           </div>
 
@@ -62,7 +78,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-neutral-400 text-sm font-medium">Total Attempts</p>
-                <p className="text-3xl font-bold text-white mt-1">{stats.totalAttempts}</p>
+                <p className="text-3xl font-bold text-white mt-1">{statsTest.totalAttempts ?? 'No data'}</p>
               </div>
               <div className="bg-green-500/20 p-3 rounded-lg">
                 <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +87,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="mt-4">
-              <span className="text-green-400 text-sm font-medium">+12 this week</span>
+              <span className="text-green-400 text-sm font-medium">+{statsTest.attemptsThisWeek ?? 'No data'} this week</span>
             </div>
           </div>
 
@@ -79,7 +95,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-neutral-400 text-sm font-medium">Average Score</p>
-                <p className="text-3xl font-bold text-white mt-1">{stats.averageScore}%</p>
+                <p className="text-3xl font-bold text-white mt-1">{statsTest.averageScoreThisMonth ?? '0'}%</p>
               </div>
               <div className="bg-amber-500/20 p-3 rounded-lg">
                 <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +104,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="mt-4">
-              <span className="text-green-400 text-sm font-medium">+5% this month</span>
+              <span className="text-green-400 text-sm font-medium">This Month</span>
             </div>
           </div>
 
@@ -96,7 +112,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-neutral-400 text-sm font-medium">Recent Activity</p>
-                <p className="text-3xl font-bold text-white mt-1">{stats.recentActivity}</p>
+                <p className="text-3xl font-bold text-white mt-1">{statsTest.recentActivity ?? 'No data'}</p>
               </div>
               <div className="bg-purple-500/20 p-3 rounded-lg">
                 <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,31 +153,42 @@ export default function Dashboard() {
       </div>
     </div>
 
-          {/* Recent Tests */}
-          <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Recent Tests</h2>
-            <div className="space-y-4">
-              {[
-                { name: "JavaScript Fundamentals", attempts: 23, lastUsed: "2 hours ago" },
-                { name: "React Components", attempts: 15, lastUsed: "1 day ago" },
-                { name: "Data Structures", attempts: 31, lastUsed: "3 days ago" }
-              ].map((test, index) => (
-                <div key={index} className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 hover:border-amber-500/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-white">{test.name}</h3>
-                      <p className="text-neutral-400 text-sm">{test.attempts} attempts • {test.lastUsed}</p>
-                    </div>
-                    <button className="text-amber-400 hover:text-amber-300 transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+         
+         {/* Recent Tests */}
+<div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6">
+  <h2 className="text-2xl font-bold text-white mb-6">Recent Tests</h2>
+<div className="space-y-4">
+  {statsTest.recentTests?.length > 0 ? (
+    statsTest.recentTests.map((test, index) => (
+      <div
+        key={index}
+        className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 hover:border-amber-500/50 transition-colors"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-white">{test.testTitle}</h3>
+            <p className="text-neutral-400 text-sm">
+              {test.totalMarks > 0
+                ? `${((test.score * 100) / test.totalMarks).toFixed(2)}% Score`
+                : "N/A"}{" "}
+              • {new Date(test.submittedAt).toLocaleString()}
+            </p>
           </div>
+          <button className="text-amber-400 hover:text-amber-300 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-neutral-400">No recent tests available</p>
+  )}
+</div>
+
+</div>
+
         </div>
 
         {/* Bottom Spacer */}

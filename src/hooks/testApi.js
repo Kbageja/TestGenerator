@@ -31,6 +31,17 @@ export const fetchMyTest = async (id, token) => {
 
   return response.data;
 };
+export const fetchStats = async (token) => {
+  const response = await API.get('/api/tests/getStats', {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+console.log(response.data, "res");
+return response.data;
+
+};
+
 export const fetchPublicTests = async (id, token) => {
   const response = await API.get('/api/tests/getPublicTests', {
     params: { id }, // appends ?id=your_id

@@ -8,28 +8,37 @@ import { useAuth } from '@clerk/clerk-react';
 function TestRunner() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getToken,isLoaded } = useAuth();
+  const { getToken, isLoaded } = useAuth();
   const [testStarted, setTestStarted] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [randomizedQuestions, setRandomizedQuestions] = useState([]);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const startTimeRef = useRef(null);
   const testIdRef = useRef(null);
   const [token, setToken] = useState(null);
+  
+  // FIX: Add ref to track current answers for timer closure issue
+  const answersRef = useRef({});
+
+  // FIX: Keep answersRef in sync with answers state
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   useEffect(() => {
-  if (!isLoaded) return;
+    if (!isLoaded) return;
 
-  const fetchData = async () => {
-    const token = await getToken();
-    console.log("Token:", token);
-    // Fetch with token
-  };
+    const fetchData = async () => {
+      const token = await getToken();
+      console.log("Token:", token);
+      // Fetch with token
+    };
 
-  fetchData();
-}, [isLoaded]);
+    fetchData();
+  }, [isLoaded]);
 
   const { data: test, isLoading } = useGetTestById(id, token);
   const {
@@ -93,7 +102,7 @@ function TestRunner() {
     localStorage.setItem(`testData_${test.id}`, JSON.stringify(testData));
   }, [answers, randomizedQuestions, test?.id]);
 
-  // Timer logic
+  // FIX: Modified timer logic to prevent closure issue
   useEffect(() => {
     if (!testStarted || randomizedQuestions.length === 0 || !testIdRef.current || isEvaluating) return;
 
@@ -121,7 +130,8 @@ function TestRunner() {
       setTimeRemaining(remaining);
       
       if (remaining <= 0) {
-        handleTestComplete();
+        // FIX: Call timer completion function that uses answersRef
+        handleTestCompleteWithCurrentAnswers();
         return false; // Stop the timer
       }
       return true; // Continue the timer
@@ -143,74 +153,167 @@ function TestRunner() {
     setAnswers(prev => ({ ...prev, [questionIndex]: answer }));
   };
 
-const handleTestComplete = async () => {
-  const token2  = await getToken();
-  setIsEvaluating(true);
-  
-  const timeTaken = startTimeRef.current ? Math.floor((Date.now() - startTimeRef.current) / 1000) : 0;
-  const totalMarks = randomizedQuestions.length * 5;
-  
-  // Create ordered question-answer pairs
-  const questionsWithAnswers = randomizedQuestions.map((question, index) => ({
-    questionNumber: index + 1,
-    question: question.question,
-    type: question.type,
-    options: question.type === 'mcq' ? question.options : null,
-    correctAnswer: question.correctAnswer || null,
-    userAnswer: answers[index] || null,
-    isAnswered: answers[index] !== undefined && answers[index] !== ''
-  }));
+  // FIX: New function for timer completion that uses answersRef
+  const handleTestCompleteWithCurrentAnswers = async () => {
+    const token2 = await getToken();
+    setIsEvaluating(true);
+    
+    // Use the ref to get current answers (fixes closure issue)
+    const currentAnswers = answersRef.current;
+    
+    const timeTaken = startTimeRef.current ? Math.floor((Date.now() - startTimeRef.current) / 1000) : 0;
+    const totalMarks = randomizedQuestions.length * 5;
+    
+    // Create ordered question-answer pairs using current answers
+    const questionsWithAnswers = randomizedQuestions.map((question, index) => ({
+      questionNumber: index + 1,
+      question: question.question,
+      type: question.type,
+      options: question.type === 'mcq' ? question.options : null,
+      correctAnswer: question.correctAnswer || null,
+      userAnswer: currentAnswers[index] || null,
+      isAnswered: currentAnswers[index] !== undefined && currentAnswers[index] !== ''
+    }));
 
-  const testAttempt = {
-    testId: test.id,
-    testTitle: test.title,
-    questions: questionsWithAnswers,
-    answers,
-    timeTaken,
-    isCompleted: true,
-    totalMarks,
-    totalQuestions: randomizedQuestions.length,
-    answeredQuestions: Object.keys(answers).filter(key => answers[key] !== undefined && answers[key] !== '').length
-  };
-  
-  try {
-    // Make sure token is available
-    if (!token2) {
-      throw new Error('Authentication token not available');
-    }
-
-    // Call the evaluation mutation with the correct parameter structure
-evalTestMutation(
-      { formData: testAttempt, token:token2 }, // pass both
-      {
-        onSuccess: (data) =>{ 
-            console.log(data,"data");
-            navigate(`/Test/Result/${data.id}`)},
-        onError: () => {
-          setShowPopup(true);
-          setTimeout(() => setShowPopup(false), 3000);
-        },
+    // Count answered questions using current answers
+    let answeredQuestionsCount = 0;
+    for (let i = 0; i < randomizedQuestions.length; i++) {
+      const answer = currentAnswers[i];
+      if (answer !== undefined && answer !== null && answer !== '') {
+        answeredQuestionsCount++;
       }
-    );
-    
-    // Clean up localStorage on successful evaluation
-    localStorage.removeItem(`startTime_${test.id}`);
-    localStorage.removeItem(`testData_${test.id}`);
-
-  } catch (error) {
-    console.error('Error during test evaluation:', error);
-    setIsEvaluating(false);
-    
-    // Show user-friendly error message
-    if (error.message.includes('token') || error.message.includes('401')) {
-      alert('Authentication error. Please refresh the page and try again.');
-    } else if (error.message.includes('network') || error.message.includes('fetch')) {
-      alert('Network error. Please check your connection and try again.');
-    } else {
-      alert('Failed to submit test. Please try again or contact support.');
     }
-  }
-};
+
+    const testAttempt = {
+      testId: test.id,
+      testTitle: test.title,
+      questions: questionsWithAnswers,
+      answers: currentAnswers, // Use current answers from ref
+      timeTaken,
+      isCompleted: true,
+      totalMarks,
+      totalQuestions: randomizedQuestions.length,
+      answeredQuestions: answeredQuestionsCount
+    };
+    
+    try {
+      if (!token2) {
+        throw new Error('Authentication token not available');
+      }
+
+      evalTestMutation(
+        { formData: testAttempt, token: token2 },
+        {
+          onSuccess: (data) => { 
+            console.log(data, "data");
+            navigate(`/Test/Result/${data.id}`)
+          },
+          onError: () => {
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 3000);
+          },
+        }
+      );
+      
+      localStorage.removeItem(`startTime_${test.id}`);
+      localStorage.removeItem(`testData_${test.id}`);
+
+    } catch (error) {
+      console.error('Error during test evaluation:', error);
+      setIsEvaluating(false);
+      
+      if (error.message.includes('token') || error.message.includes('401')) {
+        alert('Authentication error. Please refresh the page and try again.');
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        alert('Network error. Please check your connection and try again.');
+      } else {
+        alert('Failed to submit test. Please try again or contact support.');
+      }
+    }
+  };
+
+  // FIX: Modified original function to also use answersRef for consistency
+  const handleTestComplete = async () => {
+    const token2 = await getToken();
+    setIsEvaluating(true);
+    
+    // Use the ref to ensure we have the latest answers
+    const currentAnswers = answersRef.current;
+    
+    const timeTaken = startTimeRef.current ? Math.floor((Date.now() - startTimeRef.current) / 1000) : 0;
+    const totalMarks = randomizedQuestions.length * 5;
+    
+    // Create ordered question-answer pairs
+    const questionsWithAnswers = randomizedQuestions.map((question, index) => ({
+      questionNumber: index + 1,
+      question: question.question,
+      type: question.type,
+      options: question.type === 'mcq' ? question.options : null,
+      correctAnswer: question.correctAnswer || null,
+      userAnswer: currentAnswers[index] || null,
+      isAnswered: currentAnswers[index] !== undefined && currentAnswers[index] !== ''
+    }));
+
+    // Count answered questions using current answers
+    let answeredQuestionsCount = 0;
+    for (let i = 0; i < randomizedQuestions.length; i++) {
+      const answer = currentAnswers[i];
+      if (answer !== undefined && answer !== null && answer !== '') {
+        answeredQuestionsCount++;
+      }
+    }
+
+    const testAttempt = {
+      testId: test.id,
+      testTitle: test.title,
+      questions: questionsWithAnswers,
+      answers: currentAnswers,
+      timeTaken,
+      isCompleted: true,
+      totalMarks,
+      totalQuestions: randomizedQuestions.length,
+      answeredQuestions: answeredQuestionsCount
+    };
+    
+    try {
+      // Make sure token is available
+      if (!token2) {
+        throw new Error('Authentication token not available');
+      }
+
+      // Call the evaluation mutation with the correct parameter structure
+      evalTestMutation(
+        { formData: testAttempt, token: token2 }, // pass both
+        {
+          onSuccess: (data) => { 
+            console.log(data, "data");
+            navigate(`/Test/Result/${data.id}`)
+          },
+          onError: () => {
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 3000);
+          },
+        }
+      );
+      
+      // Clean up localStorage on successful evaluation
+      localStorage.removeItem(`startTime_${test.id}`);
+      localStorage.removeItem(`testData_${test.id}`);
+
+    } catch (error) {
+      console.error('Error during test evaluation:', error);
+      setIsEvaluating(false);
+      
+      // Show user-friendly error message
+      if (error.message.includes('token') || error.message.includes('401')) {
+        alert('Authentication error. Please refresh the page and try again.');
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        alert('Network error. Please check your connection and try again.');
+      } else {
+        alert('Failed to submit test. Please try again or contact support.');
+      }
+    }
+  };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
