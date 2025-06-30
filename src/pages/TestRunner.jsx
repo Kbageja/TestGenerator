@@ -20,6 +20,7 @@ function TestRunner() {
   const [showViolationWarning, setShowViolationWarning] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSecurityPrompt, setShowSecurityPrompt] = useState(true);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   
   const startTimeRef = useRef(null);
   const testIdRef = useRef(null);
@@ -408,52 +409,56 @@ const handleSecurityViolation = (violation) => {
   const getQuestionBlockClass = (index) => {
     const isAnswered = answers[index] !== undefined && answers[index] !== '';
     const isCurrent = index === currentQuestion;
-    const base = "w-10 h-10 rounded-lg flex items-center justify-center font-semibold text-sm cursor-pointer transition-all duration-200 border-2";
+    const base = "w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center font-semibold text-xs sm:text-sm cursor-pointer transition-all duration-200 border-2";
     if (isCurrent) return `${base} bg-amber-500 text-black border-amber-400`;
     if (isAnswered) return `${base} bg-neutral-800 text-amber-100 border-amber-500 hover:border-amber-400`;
     return `${base} bg-neutral-700 text-neutral-300 border-neutral-600 hover:border-amber-600 hover:text-amber-200`;
   };
 
+  const closeMobileSidebar = () => {
+    setShowMobileSidebar(false);
+  };
+
   // Show security prompt before test starts
   if (showSecurityPrompt && !testStarted) {
     return (
-      <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
-        <div className="max-w-2xl mx-auto p-8 bg-neutral-800 rounded-lg border border-neutral-700">
+      <div className="min-h-screen bg-neutral-900 flex items-center justify-center px-4">
+        <div className="max-w-2xl w-full mx-auto p-4 sm:p-6 lg:p-8 bg-neutral-800 rounded-lg border border-neutral-700">
           <div className="text-center">
-            <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m2-2V9m0 0V7m0 2h2m-2 0H10" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-amber-400 mb-4">Secure Test Environment</h2>
-            <p className="text-neutral-300 mb-6 leading-relaxed">
+            <h2 className="text-xl sm:text-2xl font-bold text-amber-400 mb-3 sm:mb-4">Secure Test Environment</h2>
+            <p className="text-neutral-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
               This test requires a secure environment to ensure fairness. Please note the following restrictions:
             </p>
-            <div className="text-left space-y-3 mb-8">
-              <div className="flex items-center text-neutral-300">
-                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0"></div>
+            <div className="text-left space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+              <div className="flex items-start text-neutral-300 text-sm sm:text-base">
+                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0 mt-2"></div>
                 <span>You must remain in fullscreen mode throughout the test</span>
               </div>
-              <div className="flex items-center text-neutral-300">
-                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0"></div>
+              <div className="flex items-start text-neutral-300 text-sm sm:text-base">
+                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0 mt-2"></div>
                 <span>Switching tabs or windows is not allowed</span>
               </div>
-              <div className="flex items-center text-neutral-300">
-                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0"></div>
+              <div className="flex items-start text-neutral-300 text-sm sm:text-base">
+                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0 mt-2"></div>
                 <span>Right-click and keyboard shortcuts are disabled</span>
               </div>
-              <div className="flex items-center text-neutral-300">
-                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0"></div>
+              <div className="flex items-start text-neutral-300 text-sm sm:text-base">
+                <div className="w-2 h-2 bg-amber-500 rounded-full mr-3 flex-shrink-0 mt-2"></div>
                 <span>Navigation back/forward is prevented</span>
               </div>
-              <div className="flex items-center text-red-400">
-                <div className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0"></div>
+              <div className="flex items-start text-red-400 text-sm sm:text-base">
+                <div className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0 mt-2"></div>
                 <span>3 security violations will automatically submit your test</span>
               </div>
             </div>
             <button
               onClick={startSecureTest}
-              className="px-8 py-3 bg-amber-500 text-black rounded-lg hover:bg-amber-400 transition-all duration-200 font-medium text-lg"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-amber-500 text-black rounded-lg hover:bg-amber-400 transition-all duration-200 font-medium text-base sm:text-lg"
             >
               Start Secure Test
             </button>
@@ -466,10 +471,10 @@ const handleSecurityViolation = (violation) => {
   // Show evaluation loader
   if (isEvaluating) {
     return (
-      <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-900 flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-amber-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-amber-400 text-xl font-medium">Evaluating your test...</p>
+          <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-amber-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-amber-400 text-lg sm:text-xl font-medium">Evaluating your test...</p>
           <p className="text-neutral-400 text-sm mt-2">Please wait while we process your answers</p>
         </div>
       </div>
@@ -478,8 +483,8 @@ const handleSecurityViolation = (violation) => {
 
   if (isLoading || !test || randomizedQuestions.length === 0) {
     return (
-      <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
-        <p className="text-neutral-400 text-lg">Loading Test...</p>
+      <div className="min-h-screen bg-neutral-900 flex items-center justify-center px-4">
+        <p className="text-neutral-400 text-base sm:text-lg">Loading Test...</p>
       </div>
     );
   }
@@ -493,53 +498,98 @@ const handleSecurityViolation = (violation) => {
     <div className="min-h-screen bg-neutral-900 text-amber-100">
       {/* Security Violation Warning */}
       {showViolationWarning && (
-        <div className="fixed top-4 right-4 z-50 bg-red-600 text-white p-4 rounded-lg border border-red-500 animate-pulse">
+        <div className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50 bg-red-600 text-white p-3 sm:p-4 rounded-lg border border-red-500 animate-pulse max-w-xs sm:max-w-sm">
           <div className="flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
             <div>
-              <p className="font-medium">Security Violation Detected!</p>
-              <p className="text-sm">Violations: {securityViolations}/3</p>
+              <p className="font-medium text-sm">Security Violation Detected!</p>
+              <p className="text-xs">Violations: {securityViolations}/3</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-neutral-800 border-b border-neutral-700 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-amber-500">{test.title}</h1>
-            <p className="text-neutral-400">
-              MCQ: {mcqCount} | Short Answer: {shortAnswerCount} | 5 marks each
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-lg font-mono">
-              <span className="text-neutral-400">Time: </span>
-              <span className={timeRemaining !== null && timeRemaining < 300 ? 'text-red-400' : 'text-amber-400'}>
-                {timeRemaining !== null ? formatTime(timeRemaining) : 'Loading...'}
-              </span>
+      <div className="bg-neutral-800 border-b border-neutral-700 px-4 sm:px-6 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold text-amber-500 truncate">{test.title}</h1>
+              <p className="text-xs sm:text-sm text-neutral-400 truncate">
+                MCQ: {mcqCount} | Short Answer: {shortAnswerCount} | 5 marks each
+              </p>
             </div>
-            <div className="text-sm text-neutral-400">
-              Question {currentQuestion + 1} of {totalQuestions}
-            </div>
-            {securityViolations > 0 && (
-              <div className="text-sm text-red-400">
-                Security Violations: {securityViolations}/3
+            <div className="flex flex-col sm:text-right space-y-1">
+              <div className="flex items-center justify-between sm:justify-end space-x-4">
+                <div className="text-sm sm:text-lg font-mono">
+                  <span className="text-neutral-400">Time: </span>
+                  <span className={timeRemaining !== null && timeRemaining < 300 ? 'text-red-400' : 'text-amber-400'}>
+                    {timeRemaining !== null ? formatTime(timeRemaining) : 'Loading...'}
+                  </span>
+                </div>
+                <button
+                  className="sm:hidden px-3 py-1 bg-amber-500 text-black rounded text-xs font-medium"
+                  onClick={() => setShowMobileSidebar(true)}
+                >
+                  Questions
+                </button>
               </div>
-            )}
+              <div className="flex items-center justify-between sm:justify-end text-xs sm:text-sm text-neutral-400 space-x-4">
+                <span>Question {currentQuestion + 1} of {totalQuestions}</span>
+                {securityViolations > 0 && (
+                  <span className="text-red-400">
+                    Violations: {securityViolations}/3
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-80px)]">
-        {/* Sidebar - 4x4 Grid */}
-        <div className="w-48 bg-neutral-800 border-r border-neutral-700 p-4">
-          <div className="sticky top-4">
-            <h3 className="text-amber-400 font-medium mb-3 text-center">Questions</h3>
+      {/* Mobile Sidebar Overlay */}
+      {showMobileSidebar && (
+        <div className="fixed inset-0 z-50 sm:hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={closeMobileSidebar}></div>
+          <div className="absolute left-0 top-0 bottom-0 w-64 bg-neutral-800 border-r border-neutral-700 p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-amber-400 font-medium">Questions</h3>
+              <button
+                onClick={closeMobileSidebar}
+                className="text-neutral-400 hover:text-amber-400 p-1"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <div className="grid grid-cols-4 gap-2">
+              {randomizedQuestions.map((_, index) => (
+                <div
+                  key={index}
+                  onClick={() => {
+                    setCurrentQuestion(index);
+                    closeMobileSidebar();
+                  }}
+                  className={getQuestionBlockClass(index)}
+                  title={`Question ${index + 1}`}
+                >
+                  {index + 1}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)]">
+        {/* Desktop Sidebar */}
+        <div className="hidden sm:block w-32 lg:w-48 bg-neutral-800 border-r border-neutral-700 p-2 lg:p-4">
+          <div className="sticky top-4">
+            <h3 className="text-amber-400 font-medium mb-3 text-center text-sm lg:text-base">Questions</h3>
+            <div className="grid grid-cols-3 lg:grid-cols-4 gap-1 lg:gap-2">
               {randomizedQuestions.map((_, index) => (
                 <div
                   key={index}
@@ -555,27 +605,27 @@ const handleSecurityViolation = (violation) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
             {/* Question */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
-                  <h2 className="text-xl font-semibold text-amber-400">
+                  <h2 className="text-lg sm:text-xl font-semibold text-amber-400">
                     Question {currentQuestion + 1}
                   </h2>
-                  <span className={`ml-3 px-2 py-1 rounded text-xs font-medium ${
+                  <span className={`ml-2 sm:ml-3 px-2 py-1 rounded text-xs font-medium ${
                     currentQuestionData.type === 'mcq' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
                   }`}>
-                    {currentQuestionData.type === 'mcq' ? 'Multiple Choice' : 'Short Answer'}
+                    {currentQuestionData.type === 'mcq' ? 'MCQ' : 'Short Answer'}
                   </span>
                 </div>
-                <div className="bg-amber-500 text-black px-3 py-1 rounded-full text-sm font-semibold">
+                <div className="bg-amber-500 text-black px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold self-start">
                   5 marks
                 </div>
               </div>
-              <div className="bg-neutral-800 rounded-lg p-6 border border-neutral-700">
-                <p className="text-lg text-neutral-200 leading-relaxed">
+              <div className="bg-neutral-800 rounded-lg p-4 sm:p-6 border border-neutral-700">
+                <p className="text-base sm:text-lg text-neutral-200 leading-relaxed">
                   {currentQuestionData.question}
                 </p>
               </div>

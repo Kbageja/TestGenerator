@@ -248,22 +248,37 @@ const { getToken } = useAuth();
         </div>
 
         {/* Test Info */}
-        <div className="mt-6 bg-neutral-700 rounded-lg p-4 border border-neutral-600">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-neutral-400">
-            <div>
-              <span className="font-medium">Test ID:</span> {resultData.testId}
-            </div>
-            <div>
-              <span className="font-medium">Attempt ID:</span> {resultData.id}
-            </div>
-            <div>
-              <span className="font-medium">Created:</span> {new Date(resultData.createdAt).toLocaleString()}
-            </div>
-            <div>
-              <span className="font-medium">Last Updated:</span> {new Date(resultData.updatedAt).toLocaleString()}
-            </div>
-          </div>
-        </div>
+<div className="mt-6 bg-neutral-800/50 backdrop-blur-sm rounded-xl p-5 border border-neutral-700/60 shadow-lg">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4 md:px-8 text-sm">
+    <div className="flex flex-col space-y-1 bg-neutral-700/30 rounded-lg p-3 border border-neutral-600/50">
+      <span className="font-medium text-amber-400/80 text-xs uppercase tracking-wider">Created</span>
+      <span className="text-neutral-300 font-mono">
+        {new Date(resultData.createdAt).toLocaleString([], {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}
+      </span>
+    </div>
+    <div className="flex flex-col space-y-1 bg-neutral-700/30 rounded-lg p-3 border border-neutral-600/50">
+      <span className="font-medium text-amber-400/80 text-xs uppercase tracking-wider">Last Updated</span>
+      <span className="text-neutral-300 font-mono">
+        {new Date(resultData.updatedAt).toLocaleString([], {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}
+        {resultData.createdAt === resultData.updatedAt && (
+          <span className="ml-2 text-xs text-amber-500/70">(never modified)</span>
+        )}
+      </span>
+    </div>
+  </div>
+</div>
       </div>
     </div>
   );
