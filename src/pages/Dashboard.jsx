@@ -162,7 +162,9 @@ export default function Dashboard() {
     statsTest.recentTests.map((test, index) => (
       <div
         key={index}
-        className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 hover:border-amber-500/50 transition-colors"
+        className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 hover:border-amber-500/50 transition-colors" onClick={()=>
+          navigate(`/Test/Result/${test.id}`)
+        }
       >
         <div className="flex items-center justify-between">
           <div>

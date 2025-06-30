@@ -48,7 +48,13 @@ function Tests() {
     }
   };
 
-  const formatTime = (seconds) => `${Math.round(seconds / 60)}m`;
+const formatTime = (seconds) => {
+  if (seconds < 60) {
+    return `${seconds} sec`;
+  } else {
+    return `${(seconds / 60).toFixed(2)} min`;
+  }
+};
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-US", {
       month: "short",

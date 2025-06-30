@@ -212,7 +212,7 @@ const handleSubmit = async (e) => {
               </label>
               {browserSupportsSpeechRecognition && (
                 <div className="flex items-center gap-2">
-                  <button
+                  {/* <button
                     type="button"
                     onClick={toggleSpeechRecognition}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
@@ -225,12 +225,12 @@ const handleSubmit = async (e) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
                     {listening ? 'Stop Recording' : 'Start Recording'}
-                  </button>
+                  </button> */}
                   {formData.prompt && (
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, prompt: '' }))}
-                      className="px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg text-sm transition-colors"
+                      className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-neutral-900 font-medium rounded-lg text-sm transition-colors"
                     >
                       Clear
                     </button>

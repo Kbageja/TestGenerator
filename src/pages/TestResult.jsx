@@ -212,6 +212,7 @@ const { getToken } = useAuth();
                         </div>
                       )}
                       <p className="text-neutral-300 leading-relaxed">
+                         <p ><span className='font-medium text-amber-400'>Marks Awarded: </span>{feedbackItem.marksAwarded}</p>
                         <p ><span className='font-medium text-amber-400'>Feedback: </span>{feedbackItem.feedback}</p>
                         <p> <span className='font-medium text-amber-400'>Your Answer: </span> {feedbackItem.userAnswer}</p>
                         <p> <span className='font-medium text-amber-400'>Correct Answer: </span> {feedbackItem.correctAnswer}</p>
