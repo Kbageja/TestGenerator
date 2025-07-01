@@ -32,22 +32,19 @@ function Tests() {
     fetchToken();
   }, [getToken]);
 
- const {
-  data: myTests = [],
-  isLoading: myTestsLoading
-} = useMyTest(userId, token);
+  const { data: myTests = [], isLoading: myTestsLoading } = useMyTest(
+    userId,
+    token
+  );
 
-const {
-  data: publicTests = [],
-  isLoading: publicTestsLoading
-} = usePublicTest(userId, token);
+  const { data: publicTests = [], isLoading: publicTestsLoading } =
+    usePublicTest(userId, token);
 
-const {
-  data: attemptedTests = [],
-  isLoading: attemptedTestsLoading
-} = useAttempted(userId, token);
+  const { data: attemptedTests = [], isLoading: attemptedTestsLoading } =
+    useAttempted(userId, token);
 
-const isLoading = myTestsLoading || publicTestsLoading || attemptedTestsLoading;
+  const isLoading =
+    myTestsLoading || publicTestsLoading || attemptedTestsLoading;
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -62,13 +59,13 @@ const isLoading = myTestsLoading || publicTestsLoading || attemptedTestsLoading;
     }
   };
 
-const formatTime = (seconds) => {
-  if (seconds < 60) {
-    return `${seconds} sec`;
-  } else {
-    return `${(seconds / 60).toFixed(2)} min`;
-  }
-};
+  const formatTime = (seconds) => {
+    if (seconds < 60) {
+      return `${seconds} sec`;
+    } else {
+      return `${(seconds / 60).toFixed(2)} min`;
+    }
+  };
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-US", {
       month: "short",
@@ -95,19 +92,24 @@ const formatTime = (seconds) => {
         test.creator?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-
-if (isLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-neutral-800 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="animate-spin text-amber-400 mx-auto mb-4" size={48} />
-          <h2 className="text-xl font-semibold text-white mb-2">Loading Your Results...</h2>
-          <p className="text-neutral-400">Please wait while we fetch your tests</p>
+          <Loader2
+            className="animate-spin text-amber-400 mx-auto mb-4"
+            size={48}
+          />
+          <h2 className="text-xl font-semibold text-white mb-2">
+            Loading Your Results...
+          </h2>
+          <p className="text-neutral-400">
+            Please wait while we fetch your tests
+          </p>
         </div>
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen bg-neutral-800 text-white p-6">
@@ -130,8 +132,7 @@ if (isLoading) {
             {myTests.map((test) => {
               const matchingAttempt = attemptedTests.find(
                 (attempt) =>
-                  attempt.testId === test.id &&
-                  attempt.user?.clerkId === userId
+                  attempt.testId === test.id && attempt.user?.clerkId === userId
               );
               return (
                 <div
@@ -179,8 +180,8 @@ if (isLoading) {
                   </div>
                   <div className="flex justify-between items-center mt-4 text-xs text-neutral-500">
                     <span>Created {formatDate(test.createdAt)}</span>
+                    <div>
                     <button
-                      disabled={!matchingAttempt}
                       onClick={() =>
                         matchingAttempt &&
                         navigate(`/Test/Result/${matchingAttempt.id}`)
@@ -193,6 +194,24 @@ if (isLoading) {
                     >
                       {matchingAttempt ? "View" : "Not Attempted"}
                     </button>
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/Test/${test.id}`;
+                        navigator.clipboard
+                          .writeText(url)
+                          .then(() => {
+                            // You can add a toast notification here if you want
+                            alert("Link copied to clipboard!");
+                          })
+                          .catch((err) => {
+                            console.error("Failed to copy: ", err);
+                          });
+                      }}
+                      className="px-4 mx-2 py-1 rounded-md text-sm bg-amber-600 hover:bg-amber-700 text-white "
+                    >
+                      Share
+                    </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -240,9 +259,7 @@ if (isLoading) {
                           (attempt.score * 100) / attempt.totalMarks
                         )}`}
                       >
-                        {Math.round(
-                          (attempt.score * 100) / attempt.totalMarks
-                        )}
+                        {Math.round((attempt.score * 100) / attempt.totalMarks)}
                         %
                       </span>
                       <span className="text-neutral-400">
@@ -257,16 +274,35 @@ if (isLoading) {
                 </div>
                 <div className="flex justify-between items-center mt-4 text-xs text-neutral-500">
                   <span>{formatDate(attempt.createdAt)}</span>
-                  <button
-                    onClick={() =>
-                      attempt.isCompleted
-                        ? navigate(`/Test/Result/${attempt.id}`)
-                        : navigate(`/Test/${attempt.testId}`)
-                    }
-                    className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1 rounded-md text-sm"
-                  >
-                    {attempt.isCompleted ? "Review" : "Continue"}
-                  </button>
+                  <div>
+                    <button
+                      onClick={() =>
+                        attempt.isCompleted
+                          ? navigate(`/Test/Result/${attempt.id}`)
+                          : navigate(`/Test/${attempt.testId}`)
+                      }
+                      className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1 rounded-md text-sm"
+                    >
+                      {attempt.isCompleted ? "Review" : "Continue"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/Test/${attempt.testId}`;
+                        navigator.clipboard
+                          .writeText(url)
+                          .then(() => {
+                            // You can add a toast notification here if you want
+                            alert("Link copied to clipboard!");
+                          })
+                          .catch((err) => {
+                            console.error("Failed to copy: ", err);
+                          });
+                      }}
+                      className="px-4 mx-2 py-1 rounded-md text-sm bg-amber-600 hover:bg-amber-700 text-white "
+                    >
+                      Share
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -339,10 +375,27 @@ if (isLoading) {
                 </div>
                 <button
                   onClick={() => navigate(`/Test/${test.id}`)}
-                  className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md text-sm"
+                  className="mt-4 w-full bg-amber-600 font-medium hover:bg-amber-700 text-white py-2 rounded-md text-sm"
                 >
                   Start Test
                 </button>
+                <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/Test/${test.id}`;
+                        navigator.clipboard
+                          .writeText(url)
+                          .then(() => {
+                            // You can add a toast notification here if you want
+                            alert("Link copied to clipboard!");
+                          })
+                          .catch((err) => {
+                            console.error("Failed to copy: ", err);
+                          });
+                      }}
+                      className="mt-4 w-full bg-white hover:bg-green-300 text-black font-medium py-2 rounded-md text-sm "
+                    >
+                      Share
+                    </button>
               </div>
             ))}
           </div>
