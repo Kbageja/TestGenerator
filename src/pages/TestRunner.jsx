@@ -453,7 +453,7 @@ const handleSecurityViolation = (violation) => {
               </div>
               <div className="flex items-start text-red-400 text-sm sm:text-base">
                 <div className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0 mt-2"></div>
-                <span>3 security violations will automatically submit your test</span>
+                <span>2 security violations will automatically submit your test</span>
               </div>
             </div>
             <button
@@ -505,7 +505,7 @@ const handleSecurityViolation = (violation) => {
             </svg>
             <div>
               <p className="font-medium text-sm">Security Violation Detected!</p>
-              <p className="text-xs">Violations: {securityViolations}/3</p>
+              <p className="text-xs">Violations: {securityViolations}/2</p>
             </div>
           </div>
         </div>
