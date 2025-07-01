@@ -18,6 +18,10 @@ const SignInPage = () => {
         {/* Sign In Form Container */}
         <div className="px-8">
           <SignIn 
+            path="/sign-in"
+            routing="path"
+            signUpUrl="/sign-up"
+            fallbackRedirectUrl="/Dashboard"
             appearance={{
               elements: {
                 rootBox: "w-full",
@@ -50,9 +54,6 @@ const SignInPage = () => {
                 borderRadius: "0.5rem"
               }
             }}
-            fallbackRedirectUrl="/Dashboard"
-            signUpUrl="/sign-up"
-            routing="path"
           />
         </div>
 

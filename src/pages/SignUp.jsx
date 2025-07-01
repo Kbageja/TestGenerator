@@ -51,6 +51,7 @@ const SignUpPage = () => {
               }
             }}
             fallbackRedirectUrl="/Dashboard"
+            path="/sign-up"
             signInUrl="/sign-in"
             routing="path"
           />
