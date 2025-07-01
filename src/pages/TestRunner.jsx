@@ -540,7 +540,7 @@ const handleSecurityViolation = (violation) => {
                 <span>Question {currentQuestion + 1} of {totalQuestions}</span>
                 {securityViolations > 0 && (
                   <span className="text-red-400">
-                    Violations: {securityViolations}/3
+                    Violations: {securityViolations}/2
                   </span>
                 )}
               </div>
