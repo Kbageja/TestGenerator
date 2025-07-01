@@ -50,7 +50,7 @@ const SignUpPage = () => {
                 borderRadius: "0.5rem"
               }
             }}
-            redirectUrl="/dashboard"
+            redirectUrl="/Dashboard"
             signInUrl="/sign-in"
           />
         </div>
