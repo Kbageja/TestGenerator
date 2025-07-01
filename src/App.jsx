@@ -12,11 +12,15 @@ import './App.css';
 import TestStarter from './pages/TestStarter';
 import TestRunner from './pages/TestRunner';
 import TestResult from './pages/TestResult';
+import SignInPage from './pages/SignIn.jsx';
+import SignUpPage from './pages/SignUp.jsx';
 
 
 function App() {
   return (
     <Routes>
+      <Route path = "/sign-in" element={<SignInPage />}/>
+      <Route path = "/sign-up" element={<SignUpPage />}/>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route
@@ -68,10 +72,10 @@ function App() {
           }
         />
       </Route>
-      <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" />} />
-      <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" />} />
     </Routes>
   );
 }
 
 export default App;
+
+
