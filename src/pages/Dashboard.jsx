@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import API from '../services/api';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useStats } from '../hooks/query/testQueries';
+import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
    const { userId } = useAuth();
@@ -20,15 +21,23 @@ export default function Dashboard() {
       fetchToken();
     }, [getToken]);
   
-   const { data: statsTest = {} } = useStats(token);
+   const { data: statsTest = {},isLoading } = useStats(token);
     console.log(statsTest, "myTest");
 
-  const [stats, setStats] = useState({
-    totalTests: 12,
-    totalAttempts: 84,
-    averageScore: 87,
-    recentActivity: 5
-  });
+
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-800 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2  className="animate-spin text-amber-400 mx-auto mb-4" size={48} />
+          <h2 className="text-xl font-semibold text-white mb-2">Loading Your Results...</h2>
+          <p className="text-neutral-400">Please wait while we fetch your tests</p>
+        </div>
+      </div>
+    );
+  }
+
 
 
 
@@ -144,12 +153,7 @@ export default function Dashboard() {
         >
           View All Tests
         </button>
-        <button
-          onClick={() => console.log('Export clicked')}
-          className="w-full bg-neutral-800 border border-neutral-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-neutral-700 hover:border-neutral-500 transition-all duration-200"
-        >
-          Export Results
-        </button>
+        
       </div>
     </div>
 

@@ -8,6 +8,7 @@ import {
   Search,
   Globe,
   Lock,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@clerk/clerk-react";
 import {
@@ -31,9 +32,22 @@ function Tests() {
     fetchToken();
   }, [getToken]);
 
-  const { data: myTests = [] } = useMyTest(userId, token);
-  const { data: publicTests = [] } = usePublicTest(userId, token);
-  const { data: attemptedTests = [] } = useAttempted(userId, token);
+ const {
+  data: myTests = [],
+  isLoading: myTestsLoading
+} = useMyTest(userId, token);
+
+const {
+  data: publicTests = [],
+  isLoading: publicTestsLoading
+} = usePublicTest(userId, token);
+
+const {
+  data: attemptedTests = [],
+  isLoading: attemptedTestsLoading
+} = useAttempted(userId, token);
+
+const isLoading = myTestsLoading || publicTestsLoading || attemptedTestsLoading;
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -80,6 +94,20 @@ const formatTime = (seconds) => {
         test.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
         test.creator?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+
+if (isLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-800 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-amber-400 mx-auto mb-4" size={48} />
+          <h2 className="text-xl font-semibold text-white mb-2">Loading Your Results...</h2>
+          <p className="text-neutral-400">Please wait while we fetch your tests</p>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-neutral-800 text-white p-6">
