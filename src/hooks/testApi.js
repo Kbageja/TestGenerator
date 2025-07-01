@@ -23,7 +23,6 @@ export const fetchResultById = async (id, token) => {
 };
 export const fetchMyTest = async (id, token) => {
   const response = await API.get('/api/tests/getMyTest', {
-    params: { id }, // appends ?id=your_id
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -44,7 +43,6 @@ return response.data;
 
 export const fetchPublicTests = async (id, token) => {
   const response = await API.get('/api/tests/getPublicTests', {
-    params: { id }, // appends ?id=your_id
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -120,7 +118,6 @@ export const evalTest = async ({ formData, token }) => {
 export const fetchAttempted = async (id, token) => {
   console.log("insideapi")
   const response = await API.get('/api/tests/getAttempted', {
-    params: { id }, // appends ?id=your_id
     headers: {
       Authorization: `Bearer ${token}`,
     },

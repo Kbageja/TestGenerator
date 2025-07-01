@@ -42,6 +42,7 @@ export const usePublicTest = (id, token) => {
 };
 
 export const useAttempted = (id, token) => {
+  console.log(id,"##",token)
   return useQuery({
     queryKey: ['attemptedTest', id],
     queryFn: () => fetchAttempted(id, token),
