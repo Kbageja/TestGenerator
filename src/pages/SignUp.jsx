@@ -16,7 +16,7 @@ const SignUpPage = () => {
         </div>
 
         {/* Sign Up Form Container */}
-        <div className=" px-8">
+        <div className="px-8">
           <SignUp 
             appearance={{
               elements: {
@@ -50,8 +50,9 @@ const SignUpPage = () => {
                 borderRadius: "0.5rem"
               }
             }}
-            redirectUrl="/Dashboard"
+            fallbackRedirectUrl="/Dashboard"
             signInUrl="/sign-in"
+            routing="path"
           />
         </div>
 
@@ -71,5 +72,6 @@ const SignUpPage = () => {
     </div>
   );
 };
+
 
 export default SignUpPage;
