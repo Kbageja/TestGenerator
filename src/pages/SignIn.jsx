@@ -16,7 +16,7 @@ const SignInPage = () => {
         </div>
 
         {/* Sign In Form Container */}
-        <div className="px-8">
+        <div className="md:px-8 ">
           <SignIn 
             path="/sign-in"
             routing="path"

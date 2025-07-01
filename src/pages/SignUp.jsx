@@ -16,7 +16,7 @@ const SignUpPage = () => {
         </div>
 
         {/* Sign Up Form Container */}
-        <div className="px-8">
+        <div className="md:px-8">
           <SignUp 
             appearance={{
               elements: {

@@ -111,7 +111,7 @@ export default function Home() {
                 </button>
               </Link>
 
-              <p className="text-neutral-500 text-sm">
+              <p className="text-neutral-500 text-sm py-4">
                 New here? Sign up is quick and easy!
               </p>
             </div>
@@ -119,9 +119,9 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center">
+        <div className="mt-20 md:mt-4 text-center">
           <p className="text-neutral-500 text-sm">
-            Powered by modern web technologies
+            Made by Kinshuk Bageja
           </p>
         </div>
       </div>
