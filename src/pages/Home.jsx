@@ -20,7 +20,7 @@ export default function Home() {
             <h1 className="text-5xl font-bold text-white mb-2">
               Welcome to{" "}
               <span className="bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
-                Test Generator
+                Test Maker
               </span>{" "}
               🎯
             </h1>

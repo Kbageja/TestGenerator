@@ -15,7 +15,7 @@ export default function Navbar() {
             to="/" 
             className="text-amber-400 font-bold text-lg hover:text-amber-300 transition-colors duration-200"
           >
-            Test Generator
+            Test Maker
           </Link>
           
           {/* Desktop Navigation - shown on md screens and larger */}
