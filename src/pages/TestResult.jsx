@@ -97,10 +97,18 @@ const { getToken } = useAuth();
     );
   }
 
-  const percentage = resultData.score ? Math.round((resultData.score / resultData.totalMarks) * 100) : 0;
   const feedback = resultData.feedback || [];
   const answers = resultData.answers || [];
   const questions = resultData.questions||[];
+  
+  // Calculate score as sum of marksAwarded from feedback
+  const calculatedScore = feedback.reduce((sum, item) => {
+    return sum + (item.marksAwarded || 0);
+  }, 0);
+  
+  const percentage = calculatedScore && resultData.totalMarks ? Math.round((calculatedScore / resultData.totalMarks) * 100) : 0;
+  
+  console.log(resultData);
 
   return (
     <div className="min-h-screen bg-neutral-800 p-6">
@@ -126,16 +134,16 @@ const { getToken } = useAuth();
           </div>
           
           {/* Score Display */}
-          <div className={`rounded-lg p-6 border-2 ${getScoreBgColor(resultData.score || 0, resultData.totalMarks)}`}>
+          <div className={`rounded-lg p-6 border-2 ${getScoreBgColor(calculatedScore, resultData.totalMarks)}`}>
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-neutral-200 mb-2">Your Score</h2>
                 <div className="flex items-baseline space-x-2">
-                  <span className={`text-4xl font-bold ${getScoreColor(resultData.score || 0, resultData.totalMarks)}`}>
-                    {resultData.score || 0}
+                  <span className={`text-4xl font-bold ${getScoreColor(calculatedScore, resultData.totalMarks)}`}>
+                    {calculatedScore}
                   </span>
                   <span className="text-2xl text-neutral-400">/ {resultData.totalMarks}</span>
-                  <span className={`text-xl font-semibold ${getScoreColor(resultData.score || 0, resultData.totalMarks)}`}>
+                  <span className={`text-xl font-semibold ${getScoreColor(calculatedScore, resultData.totalMarks)}`}>
                     ({percentage}%)
                   </span>
                 </div>
@@ -240,7 +248,7 @@ const { getToken } = useAuth();
             <div className="text-neutral-300 text-sm">Success Rate</div>
           </div>
           <div className="bg-neutral-700 rounded-lg p-4 border border-neutral-600 text-center">
-            <div className={`text-2xl font-bold ${getScoreColor(resultData.score || 0, resultData.totalMarks)}`}>
+            <div className={`text-2xl font-bold ${getScoreColor(calculatedScore, resultData.totalMarks)}`}>
               {getGradeText(percentage)}
             </div>
             <div className="text-neutral-300 text-sm">Overall Grade</div>
