@@ -251,19 +251,19 @@ function Tests() {
                       <Star
                         size={16}
                         className={`font-semibold ${getScoreColor(
-                          (attempt.score * 100) / attempt.totalMarks
+                          (attempt.score2 * 100) / attempt.totalMarks
                         )}`}
                       />
                       <span
                         className={`font-semibold ${getScoreColor(
-                          (attempt.score * 100) / attempt.totalMarks
+                          (attempt.score2 * 100) / attempt.totalMarks
                         )}`}
                       >
-                        {Math.round((attempt.score * 100) / attempt.totalMarks)}
+                        {Math.round((attempt.score2 * 100) / attempt.totalMarks)}
                         %
                       </span>
                       <span className="text-neutral-400">
-                        ({attempt.score}/{attempt.totalMarks})
+                        ({attempt.score2}/{attempt.totalMarks})
                       </span>
                     </div>
                   ) : (
