@@ -116,7 +116,8 @@ const handleSubmit = async (e) => {
 
     const subjects = [
     'Mathematics', 'Science', 'English', 'History', 'Geography', 
-    'Computer Science', 'Physics', 'Chemistry', 'Biology', 'Literature'
+    'Computer Science', 'Physics', 'Chemistry', 'Biology', 'Literature','Accounts','Aptitude','Economics','Political science','SST','Marketing'
+    ,'Circuits and Systems','Engineering','B.Com'
   ];
 
   const educationLevels = [
